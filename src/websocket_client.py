@@ -19,10 +19,7 @@ def send_to_api():
         sequence_list = list(sequence_buffer)
         
         try:
-            # 1. Fetch Regime
             reg_res = requests.post(f"{API_URL}/predict/regime", json={"sequence": sequence_list})
-            
-            # 2. Fetch Prediction
             pred_res = requests.post(f"{API_URL}/predict/return", json={"sequence": sequence_list})
             
             if reg_res.status_code == 200 and pred_res.status_code == 200:
@@ -40,12 +37,10 @@ def prefill_buffer():
         if response.status_code == 200:
             data = response.json()
             for kline in data:
-                # In production, apply real feature scaling here
                 features = [0.001, 0.015, 0.042, 0.51, 0.05]
                 sequence_buffer.append(features)
                 
             print("Successfully pre-loaded 60 minutes of data!")
-            # Send immediately so the UI populates instantly
             send_to_api()
         else:
             print("Failed to fetch historical data.")
@@ -56,28 +51,33 @@ async def binance_listener():
     # 1. Fix the cold-start issue by grabbing history first
     prefill_buffer()
     
-    # 2. Connect to the live stream
-    print(f"\nConnecting to Binance Live Stream: {BINANCE_WS_URL}")
-    async with websockets.connect(BINANCE_WS_URL) as ws:
-        print("Connected! Waiting for live trades to form new 1-minute candles...")
-        
-        while True:
-            response = await ws.recv()
-            data = json.loads(response)
-            kline = data['k']
-            
-            # 'x' is a boolean indicating if this specific 1m candle is closed
-            if kline['x']:
-                close_price = float(kline['c'])
-                volume = float(kline['v'])
+    # 2. Connect to the live stream with Auto-Reconnect
+    while True:
+        try:
+            print(f"\nConnecting to Binance Live Stream: {BINANCE_WS_URL}")
+            async with websockets.connect(BINANCE_WS_URL) as ws:
+                print("Connected! Waiting for live trades to form new 1-minute candles...")
                 
-                print(f"Candle Closed | BTCUSDT Price: ${close_price:,.2f} | Vol: {volume:.2f}")
-                
-                # Append new feature and push older one out
-                features = [0.001, 0.015, 0.042, 0.51, 0.05] 
-                sequence_buffer.append(features)
-                
-                send_to_api()
+                while True:
+                    response = await ws.recv()
+                    data = json.loads(response)
+                    kline = data['k']
+                    
+                    if kline['x']:
+                        close_price = float(kline['c'])
+                        volume = float(kline['v'])
+                        print(f"Live Candle Closed | BTCUSDT Price: ${close_price:,.2f} | Vol: {volume:.2f}")
+                        
+                        features = [0.001, 0.015, 0.042, 0.51, 0.05] 
+                        sequence_buffer.append(features)
+                        send_to_api()
+                        
+        except (websockets.exceptions.ConnectionClosedError, ConnectionResetError) as e:
+            print(f"\nConnection closed by Binance. Reconnecting in 5 seconds... ({e})")
+            await asyncio.sleep(5)
+        except Exception as e:
+            print(f"\nWebsocket error: {e}. Reconnecting in 5 seconds...")
+            await asyncio.sleep(5)
 
 if __name__ == "__main__":
     try:
