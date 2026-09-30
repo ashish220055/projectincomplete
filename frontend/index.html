@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Microstructure AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-glow"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Market Microstructure <span>AI</span></h1>
+            <p>Deep Learning Pattern Discovery & Baseline Prediction</p>
+            <div class="status-indicator">
+                <div class="pulse-dot"></div>
+                <span id="api-status">Connecting to Backend...</span>
+            </div>
+        </header>
+
+        <main class="dashboard">
+            <!-- Market Regime Card -->
+            <div class="card glassmorphism">
+                <div class="card-header">
+                    <h2>Latent Market Regime</h2>
+                    <span class="badge autoencoder-badge">Autoencoder</span>
+                </div>
+                <div class="card-body">
+                    <div class="regime-display">
+                        <div class="regime-circle" id="regime-circle">
+                            <span id="regime-id">--</span>
+                        </div>
+                    </div>
+                    <p class="description">Current identified structural state based on 60-minute order flow latent embeddings.</p>
+                </div>
+            </div>
+
+            <!-- Price Prediction Card -->
+            <div class="card glassmorphism">
+                <div class="card-header">
+                    <h2>Predicted Next Return</h2>
+                    <span class="badge lstm-badge">LSTM Predictor</span>
+                </div>
+                <div class="card-body">
+                    <div class="prediction-display">
+                        <h1 id="prediction-value">--%</h1>
+                        <p id="prediction-direction" class="direction">Awaiting sequence data...</p>
+                    </div>
+                    <p class="description">Baseline forward step prediction using supervised sequence modeling.</p>
+                </div>
+            </div>
+        </main>
+
+        <div class="action-section">
+            <button id="simulate-btn" class="glow-button">Simulate Live Data Feed</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
