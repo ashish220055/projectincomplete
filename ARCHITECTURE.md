@@ -114,6 +114,7 @@ market_microstructure/
 | **LSTM Predictor** | Predict next time step return | DataLoader (Tensors)| Prediction Tensors | `torch` | Med (2 days) |
 | **Trainer Engine** | Handle forward/backward passes and epochs | Models, DataLoaders | Saved Model Weights | `torch` | High (3 days) |
 | **Evaluation** | Compute metrics, cluster embeddings, plot results| Embeddings, Predictions| Metrics Dict, Plots | `scikit-learn`, `matplotlib` | Med (2 days) |
+| **API Backend** | Serve models via REST endpoints | JSON Requests | JSON Responses | `fastapi`, `uvicorn` | Low (1 day) |
 
 ---
 
